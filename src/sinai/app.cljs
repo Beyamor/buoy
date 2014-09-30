@@ -12,7 +12,7 @@
     c))
 
 (defn launch
-  [& {:keys [width height]}]
+  [& {:keys [width height] scene :initial-scene}]
   (let [canvas (canvas/create width height)
         update-interval (interval 30)]
     (set! (.-onload js/window)
@@ -21,7 +21,12 @@
             (async-m/go-loop []
                              (async/<! update-interval)
                              (canvas/clear! canvas)
-                             (let [x (* (Math/random) 100)
-                                   y (* (Math/random) 100)]
-                               (canvas/draw-rect! canvas x y 50 50 :red false))
+                             (doseq [{:keys [position hitbox debug-color]} (:entities scene)]
+                               (canvas/draw-rect! canvas
+                                                  (:x position)
+                                                  (:y position)
+                                                  (:width hitbox)
+                                                  (:height hitbox)
+                                                  (or debug-color :red)
+                                                  false))
                              (recur))))))

@@ -7,4 +7,4 @@
               :y 0}
    :hitbox {:width 48
             :height 48}
-   :debug-color :red})
+   :debug-color :blue})
