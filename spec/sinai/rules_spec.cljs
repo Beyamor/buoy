@@ -30,7 +30,13 @@
               (should-yield-messages [[:value-of-state :state]]
                                      :state
                                      (m/do state <- r/get-state
-                                           (r/send-message :value-of-state state)))))
+                                           (r/send-message :value-of-state state))))
+
+          (it "should allow for-each style reaching too."
+              (should-yield-messages [[:value 1] [:value 2] [:value 3]]
+                                     [1 2 3]
+                                    (m/do value << r/get-state
+                                          (r/send-message :value value)))))
 
 (describe "get-in-state"
           (it "should get a value in state."

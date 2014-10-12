@@ -1,6 +1,10 @@
 (ns sinai.rules
   (:require-macros [sinai.rules.macros :as m]))
 
+(defn get-messages
+  [[_ messages]]
+  messages)
+
 (defn return
   [value]
   (fn [state]
@@ -12,6 +16,14 @@
     (let [[value messages] (rule state)
           [value more-messages] ((f value) state)]
       [value (concat messages more-messages)])))
+
+(defn bind-each
+  [rule f]
+  (fn [state]
+    (let [[values messages] (rule state)
+          values-and-more-messages (map #((f %) state) values)]
+      [nil (apply concat
+                   (map get-messages values-and-more-messages))])))
 
 (defn get-state
   [state]
@@ -33,7 +45,3 @@
 (defn update-entity
   [e f & args]
   (send-message :update-entity e #(apply f % args)))
-
-(defn get-messages
-  [[_ messages]]
-  messages)

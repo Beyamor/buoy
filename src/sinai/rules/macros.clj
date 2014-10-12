@@ -12,6 +12,12 @@
               :value   (nth forms 2)}
              (drop 3 forms)]
 
+            (= '<< (second forms))
+            [{:type     :binding-each
+              :binding  (first forms)
+              :value    (nth forms 2)}
+             (drop 3 forms)]
+
             (= :let (first forms))
             [{:type     :let
               :bindings (second forms)}
@@ -42,6 +48,11 @@
     `(sinai.rules/bind ~(:value form)
                       (fn [~(:binding form)]
                         ~body))
+
+    :binding-each
+    `(sinai.rules/bind-each ~(:value form)
+                            (fn [~(:binding form)]
+                              ~body))
 
     :let
     `(fn [state#]
