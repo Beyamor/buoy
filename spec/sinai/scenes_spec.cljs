@@ -22,12 +22,12 @@
                          [[:message 1] [:message 2]]))))
 
 (describe "a StandardScene"
-          (let [app {:scene (s/->StandardScene
-                              [(r/send-message :message 1)
-                               (r/send-message :message 2)]
-                              {:message (fn [app value]
-                                          (update-in app [:values] (fnil conj []) value))}
-                              [])}]
+          (let [app {:scene (s/create-scene
+                              :rules [(r/send-message :message 1)
+                                      (r/send-message :message 2)]
+                              :handlers {:message (fn [state value]
+                                                    (update-in state [:values] (fnil conj []) value))}
+                              :entities [])}]
             (it "should apply its rules and handlers when updating."
                 (should= [1 2]
                          (:values

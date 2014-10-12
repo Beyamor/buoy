@@ -43,7 +43,27 @@
               (should-yield-messages [[:value-in-state :value]]
                                      {:value-in-state :value}
                                      (m/do value <- (r/get-in-state :value-in-state)
-                                           (r/send-message :value-in-state value)))))
+                                           (r/send-message :value-in-state value))))
+
+          (it "should get nested values."
+              (should-yield-messages [[:nested-value :value]]
+                                     {:nested {:value :value}}
+                                     (m/do value <- (r/get-in-state :nested :value)
+                                           (r/send-message :nested-value value)))))
+
+(describe "get-in-scene"
+          (it "should get a value in the app's scene."
+              (should-yield-messages [[:scene-value :value]]
+                                     {:app {:scene {:value :value}}}
+                                     (m/do value <- (r/get-in-scene :value)
+                                           (r/send-message :scene-value value)))))
+
+(describe "get-entities"
+         (it "should get the entities in the app's scene."
+            (should-yield-messages [[:entity 1] [:entity 2]]
+                                  {:app {:scene {:entities [1 2]}}}
+                                 (m/do entity << r/get-entities
+                                       (r/send-message :entity entity)))))
 
 (describe "apply-rules"
           (it "should apply every rule and return their messages"

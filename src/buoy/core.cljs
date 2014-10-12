@@ -1,6 +1,9 @@
 (ns buoy.core
   (:require [sinai.app :as app]
-            [buoy.entities :as b-entites]))
+            [sinai.scenes :as s]
+            [sinai.rules :as r]
+            [buoy.entities :as b-entites])
+  (:require-macros [sinai.rules.macros :as rm]))
 
 (defn random-entity
   []
@@ -12,7 +15,17 @@
 (app/launch
   :width 800
   :height 600
-  :initial-scene {:entities [b-entites/player
-                             (random-entity)
-                             (random-entity)
-                             (random-entity)]})
+  :initial-scene (s/create-scene
+                   :rules [(rm/do entity << r/get-entities
+                                  (r/update-entity entity update-in [:position :x] + 5))]
+                   :handlers {:update-entity (fn [app entity f]
+                                               (update-in app [:scene :entities]
+                                                          (fn [entities]
+                                                            (map #(if (= entity %)
+                                                                    (f %)
+                                                                    %)
+                                                                 entities))))}
+                   :entities [b-entites/player
+                              (random-entity)
+                              (random-entity)
+                              (random-entity)]))

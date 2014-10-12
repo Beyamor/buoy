@@ -16,5 +16,10 @@
   [rules handlers entities]
   Scene
   (update [_ app]
-    (let [messages (r/apply-rules app rules)]
+    (let [state {:app app}
+          messages (r/apply-rules state rules)]
       (apply-handlers app handlers messages))))
+
+(defn create-scene
+  [& {:keys [rules handlers entities]}]
+  (->StandardScene rules handlers entities))

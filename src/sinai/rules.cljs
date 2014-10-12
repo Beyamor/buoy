@@ -40,7 +40,15 @@
         (return (get-in state path))))
 
 (def get-scene
-  (get-in-state [:app :scene]))
+  (get-in-state :app :scene))
+
+(defn get-in-scene
+  [& path]
+  (m/do scene <- get-scene
+        (return (get-in scene path))))
+
+(def get-entities
+  (get-in-scene :entities))
 
 (defn send-message
   [message-type & data]
