@@ -29,6 +29,11 @@
   [state]
   [state nil])
 
+(defn apply-rules
+  [state rules]
+  (apply concat
+         (map #(get-messages (% state)) rules)))
+
 (defn get-in-state
   [& path]
   (m/do state <- get-state

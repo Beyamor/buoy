@@ -44,3 +44,11 @@
                                      {:value-in-state :value}
                                      (m/do value <- (r/get-in-state :value-in-state)
                                            (r/send-message :value-in-state value)))))
+
+(describe "apply-rules"
+          (it "should apply every rule and return their messages"
+              (should= [[:message1] [:message2]]
+                       (r/apply-rules
+                         nil
+                         [(r/send-message :message1)
+                          (r/send-message :message2)])))) 
