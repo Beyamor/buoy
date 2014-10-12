@@ -1,0 +1,39 @@
+(ns sinai.rules
+  (:require-macros [sinai.rules.macros :as m]))
+
+(defn return
+  [value]
+  (fn [state]
+    [value nil]))
+
+(defn bind
+  [rule f]
+  (fn [state]
+    (let [[value messages] (rule state)
+          [value more-messages] ((f value) state)]
+      [value (concat messages more-messages)])))
+
+(defn get-state
+  [state]
+  [state nil])
+
+(defn get-in-state
+  [& path]
+  (m/do state <- get-state
+        (return (get-in state path))))
+
+(def get-scene
+  (get-in-state [:app :scene]))
+
+(defn send-message
+  [message-type & data]
+  (fn [state]
+    [nil [(concat [message-type] data)]]))
+
+(defn update-entity
+  [e f & args]
+  (send-message :update-entity e #(apply f % args)))
+
+(defn get-messages
+  [[_ messages]]
+  messages)
