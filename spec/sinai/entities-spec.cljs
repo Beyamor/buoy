@@ -34,4 +34,8 @@
                          (-> entities
                              (e/update entity1 #(assoc % :component1 :some-other-data))
                              (e/get entity1)
-                             :component1)))))
+                             :component1)))
+
+            (it "should allow entities to be retreived by components."
+                (should= #{(e/get-id entity1)}
+                         (set (e/get-with entities #{:component1}))))))

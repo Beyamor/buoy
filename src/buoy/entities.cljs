@@ -1,7 +1,8 @@
 (ns buoy.entities)
 
 (def player
-  {:position {:x 0
+  {:right-mover true
+   :position {:x 0
               :y 0}
    :velocity {:x 0
               :y 0}

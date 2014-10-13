@@ -65,6 +65,11 @@
   (m/do entities <- (get-in-scene :entities)
         (return (e/get-all-ids entities))))
 
+(defn get-entities-with
+  [components]
+  (m/do entities <- (get-in-scene :entities)
+        (return (e/get-with entities components))))
+
 (defn send-message
   [message-type & data]
   (fn [state]

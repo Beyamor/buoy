@@ -1,4 +1,5 @@
 (ns sinai.entities
+  (:require clojure.set)
   (:refer-clojure :exclude [get]))
 
 (let [ids (atom 0)]
@@ -23,7 +24,8 @@
   (add-all [this entities-to-add])
   (get-all-ids [this])
   (-get [this id])
-  (-update [this id f]))
+  (-update [this id f])
+  (get-with [this components]))
 
 (defn get
   [this entity]
@@ -47,4 +49,10 @@
     (cljs.core/get this id))
 
   (-update [this id f]
-    (update-in this [id] f)))
+    (update-in this [id] f))
+
+  (get-with [this components]
+    (let [components (set components)]
+      (for [[id entity] this
+            :when (clojure.set/subset? components (set (keys entity)))]
+        id))))

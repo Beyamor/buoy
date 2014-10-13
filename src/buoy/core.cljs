@@ -19,7 +19,7 @@
 
 (def rules
   [(r/create :on :frame-entered
-     (rm/do entity << r/get-entities
+     (rm/do entity << (r/get-entities-with #{:right-mover})
             (r/update-entity entity update-in [:position :x] + 5)))])
 
 (app/launch
