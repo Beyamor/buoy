@@ -2,7 +2,7 @@
   (:require [sinai.entities :as e])
   (:require-macros [sinai.rules.macros :as m]))
 
-(defn define
+(defn create
   [& args]
   (let [{trigger :on} (apply hash-map (butlast args))
         body (last args)]
