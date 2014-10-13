@@ -1,4 +1,5 @@
 (ns sinai.rules
+  (:require [sinai.entities :as e])
   (:require-macros [sinai.rules.macros :as m]))
 
 (defn get-messages
@@ -48,7 +49,8 @@
         (return (get-in scene path))))
 
 (def get-entities
-  (get-in-scene :entities))
+  (m/do entities <- (get-in-scene :entities)
+        (return (e/get-all-ids entities))))
 
 (defn send-message
   [message-type & data]

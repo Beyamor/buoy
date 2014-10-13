@@ -2,6 +2,7 @@
   (:require [sinai.app :as app]
             [sinai.scenes :as s]
             [sinai.rules :as r]
+            [sinai.entities :as e]
             [buoy.entities :as b-entites])
   (:require-macros [sinai.rules.macros :as rm]))
 
@@ -19,13 +20,9 @@
                    :rules [(rm/do entity << r/get-entities
                                   (r/update-entity entity update-in [:position :x] + 5))]
                    :handlers {:update-entity (fn [app entity f]
-                                               (update-in app [:scene :entities]
-                                                          (fn [entities]
-                                                            (map #(if (= entity %)
-                                                                    (f %)
-                                                                    %)
-                                                                 entities))))}
-                   :entities [b-entites/player
-                              (random-entity)
-                              (random-entity)
-                              (random-entity)]))
+                                               (update-in app [:scene :entities] e/update entity f))}
+                   :entities (e/add-all {}
+                                        (map e/create [b-entites/player
+                                                       (random-entity)
+                                                       (random-entity)
+                                                       (random-entity)]))))

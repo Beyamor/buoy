@@ -58,13 +58,6 @@
                                      (m/do value <- (r/get-in-scene :value)
                                            (r/send-message :scene-value value)))))
 
-(describe "get-entities"
-         (it "should get the entities in the app's scene."
-            (should-yield-messages [[:entity 1] [:entity 2]]
-                                  {:app {:scene {:entities [1 2]}}}
-                                 (m/do entity << r/get-entities
-                                       (r/send-message :entity entity)))))
-
 (describe "apply-rules"
           (it "should apply every rule and return their messages"
               (should= [[:message1] [:message2]]

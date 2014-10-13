@@ -1,6 +1,7 @@
 (ns sinai.app
   (:require [cljs.core.async :as async]
             [sinai.canvas :as canvas]
+            [sinai.entities :as e]
             [sinai.scenes :as scene])
   (:require-macros [cljs.core.async.macros :as async-m]))
 
@@ -24,7 +25,9 @@
                              (async/<! update-interval)
                              (let [app (scene/update (:scene app) app)]
                                (canvas/clear! canvas)
-                               (doseq [{:keys [position hitbox debug-color]} (-> app :scene :entities)]
+                               (doseq [:let [entities (-> app :scene :entities)]
+                                       id (e/get-all-ids entities)
+                                       :let [{:keys [position hitbox debug-color]} (e/get entities id)]]
                                  (canvas/draw-rect! canvas
                                                     (:x position)
                                                     (:y position)
