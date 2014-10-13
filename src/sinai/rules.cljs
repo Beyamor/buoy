@@ -2,6 +2,19 @@
   (:require [sinai.entities :as e])
   (:require-macros [sinai.rules.macros :as m]))
 
+(defn define
+  [& args]
+  (let [{trigger :on} (apply hash-map (butlast args))
+        body (last args)]
+    {:trigger trigger
+     :action body}))
+
+(defn collect
+  [rules]
+  (reduce (fn [actions rule]
+           (update-in actions [(:trigger rule)] (fnil conj []) (:action rule)))
+         {} rules)) 
+
 (defn get-messages
   [[_ messages]]
   messages)

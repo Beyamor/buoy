@@ -18,8 +18,9 @@
                     (update-in app [:scene :entities] e/update entity f))})
 
 (def rules
-  [(rm/do entity << r/get-entities
-          (r/update-entity entity update-in [:position :x] + 5))])
+  [(r/define :on :frame-entered
+     (rm/do entity << r/get-entities
+            (r/update-entity entity update-in [:position :x] + 5)))])
 
 (app/launch
   :width 800

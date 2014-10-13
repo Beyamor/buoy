@@ -23,8 +23,10 @@
 
 (describe "a StandardScene"
           (let [app {:scene (s/create-scene
-                              :rules [(r/send-message :message 1)
-                                      (r/send-message :message 2)]
+                              :rules [(r/define :on :frame-entered
+                                        (r/send-message :message 1))
+                                      (r/define :on :frame-entered
+                                        (r/send-message :message 2))]
                               :handlers {:message (fn [state value]
                                                     (update-in state [:values] (fnil conj []) value))}
                               :entities [])}]
