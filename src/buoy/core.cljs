@@ -25,14 +25,11 @@
 (def rules
   [(r/create :on :frame-entered
              (rm/do input <- (r/get-in-app :input)
-                    entity << (r/get-entities-with #{:key-mover})
-                    (r/update-entity entity update-in [:position :x]
-                                     #(cond
-                                        (input/is-down? input :right)
-                                        (+ % 5)
-                                        (input/is-down? input :left)
-                                        (- % 5)
-                                        :else %))))])
+                    (rm/let [dx (* 5
+                                   (+ (if (input/is-down? input :right) 1 0)
+                                      (if (input/is-down? input :left) -1 0)))]
+                      entity << (r/get-entities-with #{:key-mover})
+                      (r/update-entity entity update-in [:position :x] + dx))))])
 
 (app/launch
   :width 800

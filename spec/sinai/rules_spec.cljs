@@ -38,6 +38,14 @@
                                     (m/do value << r/get-state
                                           (r/send-message :value value)))))
 
+(describe "let"
+          (it "should allow for bindings in its body."
+              (should-yield-messages [[:y 2]]
+                                     1
+                                     (m/do x <- r/get-state
+                                           (m/let [y (inc x)]
+                                             (r/send-message :y y))))))
+
 (describe "get-in-state"
           (it "should get a value in state."
               (should-yield-messages [[:value-in-state :value]]
