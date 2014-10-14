@@ -2,7 +2,8 @@
   (:require [cljs.core.async :as async]
             [sinai.canvas :as canvas]
             [sinai.entities :as e]
-            [sinai.scenes :as scene])
+            [sinai.scenes :as scene]
+            [sinai.input :as input]) 
   (:require-macros [cljs.core.async.macros :as async-m]))
 
 (defn interval
@@ -13,17 +14,43 @@
                   period)
     c))
 
+(defn watch-for-key-events
+  [key-events]
+  (.addEventListener js/document "keydown"
+                     (fn [e]
+                       (swap! key-events conj [:pressed (.-keyCode e)]))
+                     false)
+  (.addEventListener js/document "keyup"
+                     (fn [e]
+                       (swap! key-events conj [:released (.-keyCode e)]))
+                     false))
+
+(defn apply-key-events
+  [app key-events]
+  (reduce (fn [app [action key]]
+            (case action
+              :pressed (update-in app [:input] input/press key)
+              :released (update-in app [:input] input/release key)))
+          app key-events))
+
 (defn launch
   [& {:keys [width height] scene :initial-scene}]
   (let [canvas (canvas/create width height)
         update-interval (interval 30)
-        app {:scene scene}]
+        key-events (atom [])
+        app {:scene scene
+             :input input/blank}]
     (set! (.-onload js/window)
           (fn []
+            (watch-for-key-events key-events)
             (.appendChild (.-body js/document) (:el canvas))
             (async-m/go-loop [app app]
                              (async/<! update-interval)
-                             (let [app (scene/update (:scene app) app)]
+                             (let [new-key-events @key-events
+                                   app (-> app
+                                           (apply-key-events new-key-events)
+                                           (->> (scene/update (:scene app))))]
+                               (reset! key-events [])
                                (canvas/clear! canvas)
                                (doseq [:let [entities (-> app :scene :entities)]
                                        id (e/get-all-ids entities)

@@ -3,6 +3,7 @@
             [sinai.scenes :as s]
             [sinai.rules :as r]
             [sinai.entities :as e]
+            [sinai.input :as input]
             [buoy.entities :as b-entites])
   (:require-macros [sinai.rules.macros :as rm]))
 
@@ -17,10 +18,21 @@
   {:update-entity (fn [app entity f]
                     (update-in app [:scene :entities] e/update entity f))})
 
+(input/bind
+  :left 65
+  :right 68)
+
 (def rules
   [(r/create :on :frame-entered
-     (rm/do entity << (r/get-entities-with #{:right-mover})
-            (r/update-entity entity update-in [:position :x] + 5)))])
+             (rm/do input <- (r/get-in-app :input)
+                    entity << (r/get-entities-with #{:key-mover})
+                    (r/update-entity entity update-in [:position :x]
+                                     #(cond
+                                        (input/is-down? input :right)
+                                        (+ % 5)
+                                        (input/is-down? input :left)
+                                        (- % 5)
+                                        :else %))))])
 
 (app/launch
   :width 800

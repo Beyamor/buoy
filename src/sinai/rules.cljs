@@ -53,8 +53,13 @@
   (m/do state <- get-state
         (return (get-in state path))))
 
+(defn get-in-app
+  [& path]
+  (m/do app <- (get-in-state :app)
+        (return (get-in app path))))
+
 (def get-scene
-  (get-in-state :app :scene))
+  (get-in-app :scene))
 
 (defn get-in-scene
   [& path]
