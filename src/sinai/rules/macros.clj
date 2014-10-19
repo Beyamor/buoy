@@ -59,3 +59,7 @@
   [bindings & body]
   `(clojure.core/let ~bindings
      (sinai.rules.macros/do ~@body)))
+
+(defmacro defrule
+  [name & args]
+  `(def ~name (sinai.rules/create ~@args)))
