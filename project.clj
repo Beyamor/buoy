@@ -15,5 +15,5 @@
 
                        :prod {:source-paths ["src"]
                               :compiler     {:output-to     "app/js/main.js"
-                                             :optimizations :simple}}}
+                                             :optimizations :whitespace}}}
               :test-commands {"test" ["phantomjs" "spec/speclj" "app/js/main_dev.js"]}})
