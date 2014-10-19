@@ -3,10 +3,6 @@
             [sinai.input :as i])
   (:require-macros [sinai.rules.macros :as mr :refer [defrule]]))
 
-(defn accelerate
-  [entity axis amount]
-  (r/update-entity entity update-in [:velocity axis] + amount))
-
 (defrule velocity-is-integrated
   :on :frame-entered
   (mr/do entity << (r/get-entities-with #{:position :velocity})
@@ -27,12 +23,17 @@
                              (update-in entity [:position :x]
                                         + (* dx (-> entity :keyboard-walker :speed)))))))
 
-(let [gravity 1]
+(let [gravity 1
+      max-velocity 20]
   (defrule gravity-pulls-things-down
     :on :frame-entered
     (mr/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
            ;:when (not (collides-with entity (entities-with #{:wall}) :below))
-           (accelerate entity :y gravity))))
+           (mr/update-entity entity
+                             (update-in entity [:velocity :y]
+                                        #(-> %
+                                             (+ gravity)
+                                             (min max-velocity)))))))
 
 (comment
   (defrule the-keyboard-jumps
