@@ -1,14 +1,18 @@
-(ns buoy.rules)
+(ns buoy.rules
+  (:require [sinai.rules :as r]
+            [sinai.input :as i])
+  (:require-macros [sinai.rules.macros :as rm]))
+
+(rm/defrule the-keyboard-moves-left-and-right
+  :on :frame-entered
+  (rm/do input <- (r/get-in-app :input)
+         (rm/let [dx (+ (if (i/is-down? input :right) 1 0)
+                        (if (i/is-down? input :left) -1 0))]
+           entity << (r/get-entities-with #{:velocity :key-mover})
+           (rm/let [speed 5] ;(-> entity :keyboard-walker :speed)]
+             (r/update-entity entity update-in [:position :x] + (* speed dx))))))
 
 (comment
-  (defrule the-keyboard-moves-left-and-right
-    :on :frame-entered
-    (do :let [dx (+ (if (key-down? :right) 1 0)
-                    (if (key-down? :left) -1 0))]
-        entity <- (entities-with #{:velocity :keyboard-walker})
-        :let [speed (-> entity :keyboard-walker :speed)]
-        (accelerate entity :x (* speed dx))))
-
   (defrule the-keyboard-jumps
     :on :frame-entered
     (do :when (key-pressed? :jump)

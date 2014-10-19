@@ -4,7 +4,8 @@
             [sinai.rules :as r]
             [sinai.entities :as e]
             [sinai.input :as input]
-            [buoy.entities :as b-entites])
+            [buoy.entities :as b-entites]
+            [buoy.rules :as b-rules])
   (:require-macros [sinai.rules.macros :as rm]))
 
 (defn random-entity
@@ -23,13 +24,7 @@
   :right 68)
 
 (def rules
-  [(r/create :on :frame-entered
-             (rm/do input <- (r/get-in-app :input)
-                    (rm/let [dx (* 5
-                                   (+ (if (input/is-down? input :right) 1 0)
-                                      (if (input/is-down? input :left) -1 0)))]
-                      entity << (r/get-entities-with #{:key-mover})
-                      (r/update-entity entity update-in [:position :x] + dx))))])
+  [b-rules/the-keyboard-moves-left-and-right])
 
 (app/launch
   :width 800
