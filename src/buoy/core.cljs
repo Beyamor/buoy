@@ -24,7 +24,9 @@
   :right 68)
 
 (def rules
-  [b-rules/the-keyboard-moves-left-and-right])
+  [b-rules/the-keyboard-moves-left-and-right
+   b-rules/gravity-pulls-things-down
+   b-rules/velocity-is-integrated])
 
 (app/launch
   :width 800

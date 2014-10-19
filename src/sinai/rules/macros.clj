@@ -63,3 +63,8 @@
 (defmacro defrule
   [name & args]
   `(def ~name (sinai.rules/create ~@args)))
+
+(defmacro update-entity
+  [entity & body]
+  `(sinai.rules/update-entity ~entity
+                              (fn [~entity] ~@body)))
