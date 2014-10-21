@@ -1,5 +1,6 @@
 (ns buoy.rules
   (:require [sinai.rules :as r :refer-macros [defrule]]
+            [sinai.entities :as e]
             [sinai.input :as i]))
 
 (defrule velocity-is-integrated
@@ -27,12 +28,16 @@
   (defrule gravity-pulls-things-down
     :on :frame-entered
     (r/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
-           ;:when (not (collides-with entity (entities-with #{:wall}) :below))
-           (r/update-entity entity
+          entities <- (r/get-in-scene :entities)
+          (if-not (e/collides-with? entities
+                                    entity)
+            (r/update-entity entity
                              (update-in entity [:velocity :y]
                                         #(-> %
                                              (+ gravity)
-                                             (min max-velocity)))))))
+                                             (min max-velocity))))
+            (r/update-entity entity
+                             (assoc-in entity [:velocity :y] 0))))))
 
 (comment
   (defrule the-keyboard-jumps
