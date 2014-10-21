@@ -1,6 +1,6 @@
 (ns sinai.entities
   (:require clojure.set)
-  (:refer-clojure :exclude [get]))
+  (:refer-clojure :exclude [get = not=]))
 
 (let [ids (atom 0)]
   (defn generate-id
@@ -19,6 +19,10 @@
   (if (number? thing)
     thing
     (get-id thing)))
+
+(defn has-components?
+  [e components]
+  (clojure.set/subset? components (set (keys e))))
 
 (defprotocol Entities
   (add-all [this entities-to-add])
@@ -54,5 +58,48 @@
   (get-with [this components]
     (let [components (set components)]
       (for [[id entity] this
-            :when (clojure.set/subset? components (set (keys entity)))]
+            :when (has-components? entity components)]
         id))))
+
+(defn get-all
+  [entities]
+  (for [id (get-all-ids entities)]
+    (get entities id)))
+
+(defn =
+  [e1 e2]
+  (clojure.core/= (->id e1) (->id e2)))
+
+(def not= (complement =))
+
+(defn left
+  [e]
+  (get-in e [:position :x] 0))
+
+(defn right
+  [e]
+  (+ (left e)
+     (get-in e [:hitbox :width] 0)))
+
+(defn top
+  [e]
+  (get-in e [:position :y] 0))
+
+(defn bottom
+  [e]
+  (+ (top e)
+     (get-in e [:hitbox :height] 0)))
+
+(defn collide?
+  [e1 e2]
+  (not (or (< (right e1) (left e2))
+           (> (left e1) (right e2))
+           (< (bottom e1) (top e2))
+           (> (top e1) (bottom e2)))))
+
+(defn collides-with?
+  [entities entity]
+  (let [entity (get entities entity)]
+    (->> (get-all entities)
+         (filter #(not= entity %))
+         (some #(collide? entity %)))))
