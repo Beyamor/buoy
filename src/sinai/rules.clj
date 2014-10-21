@@ -1,5 +1,5 @@
 (ns sinai.rules
-  (:refer-clojure :exclude [do let]))
+  (:refer-clojure :exclude [do let when]))
 
 (defn group
   [forms]
@@ -58,6 +58,11 @@
 (defmacro let
   [bindings & body]
   `(clojure.core/let ~bindings
+     (sinai.rules/do ~@body)))
+
+(defmacro when
+  [pred? & body]
+  `(clojure.core/when ~pred?
      (sinai.rules/do ~@body)))
 
 (defmacro defrule
