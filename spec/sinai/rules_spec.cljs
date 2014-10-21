@@ -1,8 +1,7 @@
 (ns sinai.rules-spec
   (:require [speclj.core]
-            [sinai.rules :as r])
-  (:require-macros [speclj.core :refer [describe it should= should should-not should-throw with]]
-                   [sinai.rules.macros :as m]))
+            [sinai.rules :as r :include-macros true])
+  (:require-macros [speclj.core :refer [describe it should= should should-not should-throw with]]))
 
 (describe "get-messages"
           (it "should grab the messages returned by some rule."
@@ -18,52 +17,52 @@
           (it "should return its body's messages."
               (should-yield-messages [[:message]]
                                      nil
-                                     (m/do (r/send-message :message))))
+                                     (r/do (r/send-message :message))))
 
           (it "should combine messages."
               (should-yield-messages [[:message 1] [:message 2]]
                                      nil
-                                     (m/do (r/send-message :message 1)
+                                     (r/do (r/send-message :message 1)
                                            (r/send-message :message 2))))
 
           (it "should allow state to be read."
               (should-yield-messages [[:value-of-state :state]]
                                      :state
-                                     (m/do state <- r/get-state
+                                     (r/do state <- r/get-state
                                            (r/send-message :value-of-state state))))
 
           (it "should allow for-each style reaching too."
               (should-yield-messages [[:value 1] [:value 2] [:value 3]]
                                      [1 2 3]
-                                    (m/do value << r/get-state
+                                    (r/do value << r/get-state
                                           (r/send-message :value value)))))
 
 (describe "let"
           (it "should allow for bindings in its body."
               (should-yield-messages [[:y 2]]
                                      1
-                                     (m/do x <- r/get-state
-                                           (m/let [y (inc x)]
+                                     (r/do x <- r/get-state
+                                           (r/let [y (inc x)]
                                              (r/send-message :y y))))))
 
 (describe "get-in-state"
           (it "should get a value in state."
               (should-yield-messages [[:value-in-state :value]]
                                      {:value-in-state :value}
-                                     (m/do value <- (r/get-in-state :value-in-state)
+                                     (r/do value <- (r/get-in-state :value-in-state)
                                            (r/send-message :value-in-state value))))
 
           (it "should get nested values."
               (should-yield-messages [[:nested-value :value]]
                                      {:nested {:value :value}}
-                                     (m/do value <- (r/get-in-state :nested :value)
+                                     (r/do value <- (r/get-in-state :nested :value)
                                            (r/send-message :nested-value value)))))
 
 (describe "get-in-scene"
           (it "should get a value in the app's scene."
               (should-yield-messages [[:scene-value :value]]
                                      {:app {:scene {:value :value}}}
-                                     (m/do value <- (r/get-in-scene :value)
+                                     (r/do value <- (r/get-in-scene :value)
                                            (r/send-message :scene-value value)))))
 
 (describe "apply-rules"

@@ -1,4 +1,4 @@
-(ns sinai.rules.macros
+(ns sinai.rules
   (:refer-clojure :exclude [do let]))
 
 (defn group
@@ -58,7 +58,7 @@
 (defmacro let
   [bindings & body]
   `(clojure.core/let ~bindings
-     (sinai.rules.macros/do ~@body)))
+     (sinai.rules/do ~@body)))
 
 (defmacro defrule
   [name & args]
@@ -66,5 +66,5 @@
 
 (defmacro update-entity
   [entity & body]
-  `(sinai.rules/update-entity ~entity
-                              (fn [~entity] ~@body)))
+  `(sinai.rules/send-entity-update-message ~entity
+                                           (fn [~entity] ~@body)))

@@ -1,12 +1,11 @@
 (ns buoy.rules
-  (:require [sinai.rules :as r]
-            [sinai.input :as i])
-  (:require-macros [sinai.rules.macros :as mr :refer [defrule]]))
+  (:require [sinai.rules :as r :refer-macros [defrule]]
+            [sinai.input :as i]))
 
 (defrule velocity-is-integrated
   :on :frame-entered
-  (mr/do entity << (r/get-entities-with #{:position :velocity})
-         (mr/update-entity entity
+  (r/do entity << (r/get-entities-with #{:position :velocity})
+         (r/update-entity entity
                            (-> entity
                                (update-in [:position :x]
                                           + (-> entity :velocity :x))
@@ -15,11 +14,11 @@
 
 (defrule the-keyboard-moves-left-and-right
   :on :frame-entered
-  (mr/do input <- (r/get-in-app :input)
-         (mr/let [dx (+ (if (i/is-down? input :right) 1 0)
+  (r/do input <- (r/get-in-app :input)
+         (r/let [dx (+ (if (i/is-down? input :right) 1 0)
                         (if (i/is-down? input :left) -1 0))]
            entity << (r/get-entities-with #{:position :keyboard-walker})
-           (mr/update-entity entity
+           (r/update-entity entity
                              (update-in entity [:position :x]
                                         + (* dx (-> entity :keyboard-walker :speed)))))))
 
@@ -27,9 +26,9 @@
       max-velocity 20]
   (defrule gravity-pulls-things-down
     :on :frame-entered
-    (mr/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
+    (r/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
            ;:when (not (collides-with entity (entities-with #{:wall}) :below))
-           (mr/update-entity entity
+           (r/update-entity entity
                              (update-in entity [:velocity :y]
                                         #(-> %
                                              (+ gravity)

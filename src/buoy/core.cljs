@@ -1,12 +1,11 @@
 (ns buoy.core
   (:require [sinai.app :as app]
             [sinai.scenes :as s]
-            [sinai.rules :as r]
+            [sinai.rules :as r :include-macros true]
             [sinai.entities :as e]
             [sinai.input :as input]
             [buoy.entities :as b-entites]
-            [buoy.rules :as b-rules])
-  (:require-macros [sinai.rules.macros :as rm]))
+            [buoy.rules :as b-rules]))
 
 (defn random-entity
   []

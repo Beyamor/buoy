@@ -1,6 +1,6 @@
 (ns sinai.rules
   (:require [sinai.entities :as e])
-  (:require-macros [sinai.rules.macros :as m]))
+  (:require-macros [sinai.rules :as m]))
 
 (defn create
   [& args]
@@ -80,6 +80,6 @@
   (fn [state]
     [nil [(concat [message-type] data)]]))
 
-(defn update-entity
+(defn send-entity-update-message
   [e f & args]
   (send-message :update-entity e #(apply f % args)))
