@@ -7,10 +7,10 @@
             [buoy.entities :as b-entites]
             [buoy.rules :as b-rules]))
 
-(defn random-entity
-  []
-  {:position {:x (* 800 (Math/random))
-              :y (* 600 (Math/random))}
+(defn wall
+  [x y]
+  {:position {:x x
+              :y y}
    :hitbox {:width 48
             :height 48}})
 
@@ -34,7 +34,6 @@
                    :rules rules
                    :handlers handlers
                    :entities (e/add-all {}
-                                        (map e/create [b-entites/player
-                                                       (random-entity)
-                                                       (random-entity)
-                                                       (random-entity)]))))
+                                        (map e/create (concat [b-entites/player]
+                                                              (for [x (range 0 800 48)]
+                                                                (wall x 100)))))))

@@ -1,6 +1,7 @@
 (ns sinai.entities
   (:require clojure.set)
-  (:refer-clojure :exclude [get = not=]))
+  (:refer-clojure :exclude [get = not=])
+  (:require-macros [sinai.util :as util]))
 
 (let [ids (atom 0)]
   (defn generate-id
@@ -39,8 +40,8 @@
   [this entity f]
   (-update this (->id entity) f))
 
-(extend-protocol Entities
-  PersistentArrayMap
+(util/extend-maps
+  Entities
   (add-all [this entities]
     (reduce (fn [this entity]
               (assoc this (get-id entity) entity))
@@ -91,15 +92,18 @@
      (get-in e [:hitbox :height] 0)))
 
 (defn collide?
-  [e1 e2]
-  (not (or (< (right e1) (left e2))
-           (> (left e1) (right e2))
-           (< (bottom e1) (top e2))
-           (> (top e1) (bottom e2)))))
+  [e1 e2 {modify-x :x modify-y :y}]
+  (not (or (< (modify-x (right e1))   (left e2))
+           (> (modify-x (left e1))    (right e2))
+           (< (modify-y (bottom e1))  (top e2))
+           (> (modify-y (top e1))     (bottom e2)))))
 
-(defn collides-with?
-  [entities entity]
-  (let [entity (get entities entity)]
-    (->> (get-all entities)
-         (filter #(not= entity %))
-         (some #(collide? entity %)))))
+(let [location-modifiers {:below {:x identity
+                                  :y inc}}]
+  (defn collides-with?
+    [entities entity location-modifier]
+    (let [entity (get entities entity)
+          location-modifier (clojure.core/get location-modifiers location-modifier)]
+      (->> (get-all entities)
+           (filter #(not= entity %))
+           (some #(collide? entity % location-modifier))))))

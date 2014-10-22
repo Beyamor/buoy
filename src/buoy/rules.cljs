@@ -24,13 +24,14 @@
                                         + (* dx (-> entity :keyboard-walker :speed)))))))
 
 (let [gravity 1
-      max-velocity 20]
+      max-velocity 1]
   (defrule gravity-pulls-things-down
     :on :frame-entered
     (r/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
           entities <- (r/get-in-scene :entities)
           (if-not (e/collides-with? entities
-                                    entity)
+                                    entity
+                                    :below)
             (r/update-entity entity
                              (update-in entity [:velocity :y]
                                         #(-> %
