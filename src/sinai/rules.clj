@@ -65,9 +65,49 @@
   `(clojure.core/when ~pred?
      (sinai.rules/do ~@body)))
 
+(defmulti construct-rule :on)
+
+(defmethod construct-rule :default
+  [arg-map]
+  (-> arg-map
+      (assoc :trigger (:on arg-map))))
+
+(letfn [(components-and-binding [xs]
+          (cond (= :as (second xs))
+                (let [[components _ binding & xs] xs]
+                  [components binding xs])
+                :else
+                (let [[components & xs] xs]
+                  [components (gensym) xs])))
+        (components-and-bindings [xs]
+          nil)]
+          ;(let [_(spit "/tmp/what" (str "1 " xs))
+          ;      [components1 binding1 xs] (components-and-binding xs)
+          ;      _(spit "/tmp/what" (str "2 " xs))
+          ;      xs (rest xs)
+          ;      _(spit "/tmp/what" (str "3 " xs))
+          ;      [components2 binding2 xs] (components-and-binding xs)
+          ;      _(spit "/tmp/what" (str "4 " xs))
+          ;      ]
+          ;  (spit "/tmp/what" (str "5 " ))
+          ;  nil))]
+            ;[[components1 binding1] [components2 binding2]]))]
+  (defmethod construct-rule :collision
+    [arg-map]
+    (let [[[components1 binding1] [components2 binding2]] (components-and-bindings
+                                                            (:between arg-map))]
+      (merge arg-map
+             {:components1 components1
+              :components2 components2
+              :action `(fn [~binding1 ~binding2]
+                         ~(:action arg-map))}))))
+
 (defmacro defrule
   [name & args]
-  `(def ~name (sinai.rules/create ~@args)))
+  (let [arg-map (apply hash-map
+                       (concat (butlast args)
+                               [:action (last args)]))]
+    `(def ~name ~(construct-rule arg-map))))
 
 (defmacro update-entity
   [entity & body]

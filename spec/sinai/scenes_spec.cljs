@@ -1,7 +1,7 @@
 (ns sinai.scenes-spec
   (:require [speclj.core]
             [sinai.scenes :as s]
-            [sinai.rules :as r])
+            [sinai.rules :as r :include-macros true])
   (:require-macros [speclj.core :refer [describe it should= should should-not should-throw with]]))
 
 (describe "apply-handlers"
@@ -21,12 +21,18 @@
                                      (conj state datum))}
                          [[:message 1] [:message 2]]))))
 
+(r/defrule send-message-1
+  :on :frame-entered
+  (r/send-message :message 1))
+
+(r/defrule send-message-2
+  :on :frame-entered
+  (r/send-message :message 2))
+
 (describe "a StandardScene"
           (let [app {:scene (s/create-scene
-                              :rules [(r/create :on :frame-entered
-                                        (r/send-message :message 1))
-                                      (r/create :on :frame-entered
-                                        (r/send-message :message 2))]
+                              :rules [send-message-1
+                                      send-message-2]
                               :handlers {:message (fn [state value]
                                                     (update-in state [:values] (fnil conj []) value))}
                               :entities [])}]

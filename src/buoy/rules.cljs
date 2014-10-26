@@ -29,16 +29,22 @@
     :on :frame-entered
     (r/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
           entities <- (r/get-in-scene :entities)
-          (if-not (e/collides-with? entities
-                                    entity
-                                    :below)
+          (when-not (e/collides-with? entities
+                                      entity
+                                      :below)
             (r/update-entity entity
                              (update-in entity [:velocity :y]
                                         #(-> %
                                              (+ gravity)
-                                             (min max-velocity))))
-            (r/update-entity entity
-                             (assoc-in entity [:velocity :y] 0))))))
+                                             (min max-velocity))))))))
+
+;(defrule walls-stop-things
+;  :on :collision
+;  :between [#{:velocity} :as mover
+;            :and
+;            #{:wall}]
+;  nil)
+  ;(r/do (stop mover)))
 
 (comment
   (defrule the-keyboard-jumps
@@ -48,12 +54,6 @@
         :when (collides-with entity (entities-with #{:wall} :below))
         :let [speed (-> entity :keyboard-jumper :speed)]
         (accelerate entity :y (- speed))))
-
-  (defrule walls-stop-things
-    :on :collision
-    :between [#{:velocity} :as mover
-              #{:wall}]
-    (do (stop mover)))
 
   (defrule player-collects-coins
     :on :collision

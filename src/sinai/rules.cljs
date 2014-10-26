@@ -2,18 +2,11 @@
   (:require [sinai.entities :as e])
   (:require-macros [sinai.rules :as m]))
 
-(defn create
-  [& args]
-  (let [{trigger :on} (apply hash-map (butlast args))
-        body (last args)]
-    {:trigger trigger
-     :action body}))
-
 (defn collect
   [rules]
   (reduce (fn [actions rule]
-           (update-in actions [(:trigger rule)] (fnil conj []) (:action rule)))
-         {} rules)) 
+            (update-in actions [(:trigger rule)] (fnil conj []) (:action rule)))
+          {} rules)) 
 
 (defn get-messages
   [[_ messages]]
@@ -37,7 +30,7 @@
     (let [[values messages] (rule state)
           values-and-more-messages (map #((f %) state) values)]
       [nil (apply concat
-                   (map get-messages values-and-more-messages))])))
+                  (map get-messages values-and-more-messages))])))
 
 (defn get-state
   [state]
