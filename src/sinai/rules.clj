@@ -63,8 +63,9 @@
 
 (defmacro when
   [pred? & body]
-  `(clojure.core/when ~pred?
-     (sinai.rules/do ~@body)))
+  `(if ~pred?
+     (sinai.rules/do ~@body)
+     (sinai.rules/return nil)))
 
 (defmulti construct-rule :trigger)
 

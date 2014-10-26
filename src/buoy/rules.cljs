@@ -29,9 +29,9 @@
     :on :frame-entered
     (r/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})
           entities <- (r/get-in-scene :entities)
-          (when-not (e/collides-with? entities
-                                      entity
-                                      :below)
+          (r/when (not (e/collides-with? entities
+                                         entity
+                                         :below))
             (r/update-entity entity
                              (update-in entity [:velocity :y]
                                         #(-> %
