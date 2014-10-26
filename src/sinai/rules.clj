@@ -1,4 +1,5 @@
 (ns sinai.rules
+  (:require [sinai.util :as u])
   (:refer-clojure :exclude [do let when]))
 
 (defn group
@@ -65,12 +66,11 @@
   `(clojure.core/when ~pred?
      (sinai.rules/do ~@body)))
 
-(defmulti construct-rule :on)
+(defmulti construct-rule :trigger)
 
 (defmethod construct-rule :default
   [arg-map]
-  (-> arg-map
-      (assoc :trigger (:on arg-map))))
+  arg-map)
 
 (let [components-and-binding (fn [xs]
                                (cond (= :as (second xs))
@@ -96,9 +96,10 @@
 
 (defmacro defrule
   [name & args]
-  (let [arg-map (apply hash-map
+  (let [arg-map (-> (apply hash-map
                        (concat (butlast args)
-                               [:action (last args)]))]
+                               [:action (last args)]))
+                    (u/swap-key :on :trigger))]
     `(def ~name ~(construct-rule arg-map))))
 
 (defmacro update-entity
