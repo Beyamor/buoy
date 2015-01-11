@@ -38,27 +38,25 @@
                                              (+ gravity)
                                              (min max-velocity))))))))
 
-;(defrule walls-stop-things
-;  :on :collision
-;  :between [#{:velocity} :as mover
-;            :and
-;            #{:wall}]
-;  nil)
-  ;(r/do (stop mover)))
+(defrule walls-stop-things
+  :on :collision
+  :between [#{:velocity} :as mover
+            :and
+            #{:wall}]
+  nil)
+;(r/do (stop mover)))
 
-(comment
-  (defrule the-keyboard-jumps
-    :on :frame-entered
-    (do :when (key-pressed? :jump)
-        entity <- (entities-with #{:velocity :keyboard-jumper})
-        :when (collides-with entity (entities-with #{:wall} :below))
-        :let [speed (-> entity :keyboard-jumper :speed)]
-        (accelerate entity :y (- speed))))
-
-  (defrule player-collects-coins
-    :on :collision
-    :between [#{:player}
-              #{:coin} :as coin]
-    (do (destroy coin)
-        increase-score))
-  )
+;  (defrule the-keyboard-jumps
+;    :on :frame-entered
+;    (do :when (key-pressed? :jump)
+;        entity <- (entities-with #{:velocity :keyboard-jumper})
+;        :when (collides-with entity (entities-with #{:wall} :below))
+;        :let [speed (-> entity :keyboard-jumper :speed)]
+;        (accelerate entity :y (- speed))))
+;
+;  (defrule player-collects-coins
+;    :on :collision
+;    :between [#{:player}
+;              #{:coin} :as coin]
+;    (do (destroy coin)
+;        increase-score))

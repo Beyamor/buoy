@@ -29,25 +29,34 @@
         (recur forms groups)))))
 
 (defn build-form
-  [body form]
+  [body form state-var result-var]
   (case (:type form)
     :normal
-    `(sinai.rules/bind ~(:value form)
-                       (fn [~(gensym)]
-                         ~body))
+    `(clojure.core/let [[~result-var messages#] (~(:value form) ~state-var)
+                        [value# more-messages#] ~body]
+       [value# (concat messages# more-messages#)])
+
     :binding
-    `(sinai.rules/bind ~(:value form)
-                       (fn [~(:binding form)]
-                         ~body))
+    `(clojure.core/let [[~result-var messages#] (~(:value form) ~state-var)
+                        ~(:binding form) ~result-var
+                        [return-value# more-messages#] ~body]
+       [return-value# (concat messages# more-messages#)])
 
     :binding-each
-    `(sinai.rules/bind-each ~(:value form)
-                            (fn [~(:binding form)]
-                              ~body))))
+    `(clojure.core/let [[~result-var messages#] (~(:value form) ~state-var)
+                        more-messages# (for [~(:binding form) ~result-var]
+                                        (second ~body))]
+       [nil (apply concat messages# more-messages#)])))
 
 (defn build
-  [[base & more-forms]]
-  (reduce build-form (:value base) more-forms))
+  [forms]
+  (clojure.core/let [state-var (gensym)
+                     result-var (gensym)]
+    `(fn [~state-var]
+       ~(reduce
+          #(build-form %1 %2 state-var result-var)
+          `[~result-var nil]
+          forms))))
 
 (defmacro do
   [& forms]
@@ -58,7 +67,7 @@
 
 (defmacro let
   [bindings & body]
-  `(clojure.core/let ~bindings
+  `(cljs.core/let ~bindings
      (sinai.rules/do ~@body)))
 
 (defmacro when
@@ -89,6 +98,7 @@
     [arg-map]
     (let [[[components1 binding1] [components2 binding2]] (components-and-bindings
                                                             (:between arg-map))]
+    (spit "/tmp/what" (str arg-map))
       (-> arg-map
           (merge {:components1 components1
                   :components2 components2
@@ -97,10 +107,10 @@
 
 (defmacro defrule
   [name & args]
-  (let [arg-map (-> (apply hash-map
-                       (concat (butlast args)
-                               [:action (last args)]))
-                    (u/swap-key :on :trigger))]
+  (clojure.core/let [arg-map (-> (apply hash-map
+                                        (concat (butlast args)
+                                                [:action (last args)]))
+                                 (u/swap-key :on :trigger))]
     `(def ~name ~(construct-rule arg-map))))
 
 (defmacro update-entity

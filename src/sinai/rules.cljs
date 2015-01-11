@@ -12,29 +12,14 @@
   [[_ messages]]
   messages)
 
+(defn get-state
+  [state]
+  [state nil])
+
 (defn return
   [value]
   (fn [state]
     [value nil]))
-
-(defn bind
-  [rule f]
-  (fn [state]
-    (let [[value messages] (rule state)
-          [value more-messages] ((f value) state)]
-      [value (concat messages more-messages)])))
-
-(defn bind-each
-  [rule f]
-  (fn [state]
-    (let [[values messages] (rule state)
-          values-and-more-messages (map #((f %) state) values)]
-      [nil (apply concat
-                  (map get-messages values-and-more-messages))])))
-
-(defn get-state
-  [state]
-  [state nil])
 
 (defn apply-rules
   [state rules]
