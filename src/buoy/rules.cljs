@@ -44,6 +44,7 @@
             :and
             #{:wall}]
   nil)
+
 ;(r/do (stop mover)))
 
 ;  (defrule the-keyboard-jumps

@@ -67,7 +67,7 @@
 
 (defmacro let
   [bindings & body]
-  `(cljs.core/let ~bindings
+  `(clojure.core/let ~bindings
      (sinai.rules/do ~@body)))
 
 (defmacro when
@@ -76,30 +76,33 @@
      (sinai.rules/do ~@body)
      (sinai.rules/return nil)))
 
-(defmulti construct-rule :trigger)
+(defmulti construct-rule
+  (fn [arg-map]
+    (spit "/tmp/trigger" (-> arg-map :trigger (str \newline)) :append true)
+    (:trigger arg-map)))
 
 (defmethod construct-rule :default
   [arg-map]
   arg-map)
 
-(let [components-and-binding (fn [xs]
-                               (cond (= :as (second xs))
-                                     (let [[components _ binding & xs] xs]
-                                       [components binding xs])
-                                     :else
-                                     (let [[components & xs] xs]
-                                       [components (gensym) xs])))
-      components-and-bindings (fn [xs]
-                                (let [[components1 binding1 xs] (components-and-binding xs)
-                                      xs (rest xs)
-                                      [components2 binding2 xs] (components-and-binding xs)]
-                                  [[components1 binding1] [components2 binding2]]))]
+(clojure.core/let [components-and-binding (fn [xs]
+                                            (cond (= :as (second xs))
+                                                  (clojure.core/let [[components _ binding & xs] xs]
+                                                    [components binding xs])
+                                                  :else
+                                                  (clojure.core/let [[components & xs] xs]
+                                                    [components (gensym) xs])))
+                   components-and-bindings (fn [xs]
+                                             (clojure.core/let [[components1 binding1 xs] (components-and-binding xs)
+                                                                xs (rest xs)
+                                                                [components2 binding2 xs] (components-and-binding xs)]
+                                               [[components1 binding1] [components2 binding2]]))]
   (defmethod construct-rule :collision
     [arg-map]
-    (let [[[components1 binding1] [components2 binding2]] (components-and-bindings
-                                                            (:between arg-map))]
-    (spit "/tmp/what" (str arg-map))
+    (clojure.core/let [[[components1 binding1] [components2 binding2]] (components-and-bindings
+                                                                         (:between arg-map))]
       (-> arg-map
+          (dissoc :between)
           (merge {:components1 components1
                   :components2 components2
                   :action `(fn [~binding1 ~binding2]
