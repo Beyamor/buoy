@@ -43,9 +43,7 @@
   :between [#{:velocity} :as mover
             :and
             #{:wall}]
-  nil)
-
-;(r/do (stop mover)))
+  (r/do (r/stop mover)))
 
 ;  (defrule the-keyboard-jumps
 ;    :on :frame-entered

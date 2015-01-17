@@ -61,3 +61,7 @@
 (defn send-entity-update-message
   [e f & args]
   (send-message :update-entity e #(apply f % args)))
+
+(defn stop
+  [e]
+  (send-message :stop e))

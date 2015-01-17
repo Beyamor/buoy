@@ -35,7 +35,7 @@
                                       send-message-2]
                               :handlers {:message (fn [state value]
                                                     (update-in state [:values] (fnil conj []) value))}
-                              :entities [])}]
+                              :entities {})}]
             (it "should apply its rules and handlers when updating."
                 (should= [1 2]
                          (:values
