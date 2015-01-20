@@ -5,7 +5,7 @@
 (defn collect
   [rules]
   (reduce (fn [actions rule]
-            (update-in actions [(:trigger rule)] (fnil conj []) (:action rule)))
+            (update-in actions [(:trigger rule)] (fnil conj []) rule))
           {} rules)) 
 
 (defn get-messages
@@ -24,7 +24,7 @@
 (defn apply-rules
   [state rules]
   (apply concat
-         (map #(get-messages (% state)) rules)))
+         (map #(get-messages ((:action %) state)) rules)))
 
 (defn get-in-state
   [& path]

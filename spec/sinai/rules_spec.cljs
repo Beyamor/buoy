@@ -70,5 +70,5 @@
               (should= [[:message1] [:message2]]
                        (r/apply-rules
                          nil
-                         [(r/send-message :message1)
-                          (r/send-message :message2)])))) 
+                         [{:action (r/send-message :message1)}
+                          {:action (r/send-message :message2)}]))))

@@ -92,11 +92,13 @@
      (get-in e [:hitbox :height] 0)))
 
 (defn collide?
-  [e1 e2 {modify-x :x modify-y :y}]
-  (not (or (< (modify-x (right e1))   (left e2))
-           (> (modify-x (left e1))    (right e2))
-           (< (modify-y (bottom e1))  (top e2))
-           (> (modify-y (top e1))     (bottom e2)))))
+  ([e1 e2]
+   (collide? e1 e2 {:x identity :y identity}))
+  ([e1 e2 {modify-x :x modify-y :y}]
+   (not (or (< (modify-x (right e1))   (left e2))
+            (> (modify-x (left e1))    (right e2))
+            (< (modify-y (bottom e1))  (top e2))
+            (> (modify-y (top e1))     (bottom e2))))))
 
 (let [location-modifiers {:below {:x identity
                                   :y inc}}]

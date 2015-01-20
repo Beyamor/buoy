@@ -12,7 +12,8 @@
   {:position {:x x
               :y y}
    :hitbox {:width 48
-            :height 48}})
+            :height 48}
+   :wall true})
 
 (def handlers
   {:update-entity (fn [app entity f]
@@ -25,7 +26,7 @@
 (def rules
   [b-rules/the-keyboard-moves-left-and-right
    b-rules/gravity-pulls-things-down
-   b-rules/velocity-is-integrated])
+   b-rules/walls-stop-things])
 
 (app/launch
   :width 800
