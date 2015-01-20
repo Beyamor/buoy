@@ -23,8 +23,8 @@
                              (update-in entity [:position :x]
                                         + (* dx (-> entity :keyboard-walker :speed)))))))
 
-(let [gravity 1
-      max-velocity 1]
+(let [gravity 4
+      max-velocity 50]
   (defrule gravity-pulls-things-down
     :on :frame-entered
     (r/do entity << (r/get-entities-with #{:velocity :gravity :hitbox})

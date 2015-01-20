@@ -37,4 +37,4 @@
                    :entities (e/add-all {}
                                         (map e/create (concat [b-entites/player]
                                                               (for [x (range 0 800 48)]
-                                                                (wall x 100)))))))
+                                                                (wall x 500)))))))
