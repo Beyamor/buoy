@@ -25,6 +25,7 @@
                       mover (e/get entities mover-id)
                       messages (for [collision-rule collision-rules
                                      other-id (e/get-with entities (:components2 collision-rule))
+                                     :when (not= mover-id other-id)
                                      :let [other (e/get entities other-id)]
                                      :when (e/collide? mover other)
                                      :let [action ((:action collision-rule)
