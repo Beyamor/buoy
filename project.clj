@@ -6,7 +6,8 @@
   :plugins [[lein-cljsbuild "1.0.3"]]
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2665"]
-                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [lonocloud/synthread "1.0.4"]]
   :profiles {:dev {:dependencies [[speclj "3.0.0"]]}}
   :cljsbuild {:builds {:dev  {:source-paths   ["src" "spec"]
                               :compiler       {:output-to     "app/js/main_dev.js"

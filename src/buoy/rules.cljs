@@ -18,10 +18,10 @@
   (r/do input <- (r/get-in-app :input)
          (r/let [dx (+ (if (i/is-down? input :right) 1 0)
                         (if (i/is-down? input :left) -1 0))]
-           entity << (r/get-entities-with #{:position :keyboard-walker})
+           entity << (r/get-entities-with #{:velocity :keyboard-walker})
            (r/update-entity entity
-                             (update-in entity [:position :x]
-                                        + (* dx (-> entity :keyboard-walker :speed)))))))
+                             (assoc-in entity [:velocity :x]
+                                        (* dx (-> entity :keyboard-walker :speed)))))))
 
 (let [gravity 4
       max-velocity 50]
