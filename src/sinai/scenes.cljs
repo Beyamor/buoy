@@ -19,7 +19,6 @@
   (reduce (fn [app mover-id]
             (let [{:keys [rules entities]} (:scene app)
                   mover (e/get entities mover-id)
-                  _ (.log js/console (-> mover :velocity str))
                   collision-rules (->> (:collision rules)
                                        (filter #(e/has-components? mover
                                                                    (:components %))))
