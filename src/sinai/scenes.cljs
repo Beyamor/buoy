@@ -70,11 +70,12 @@
                     (recur (update-in app [:scene :entities]
                                       e/update mover 
                                       #(-> %
-                                          (->/in [:position]
-                                                 (->/when (not x-stopped?)
-                                                   (->/in [:x] (+ x-step)))
-                                                 (->/when (not y-stopped?)
-                                                   (->/in [:y] (+ y-step))))))
+                                           (->/if x-stopped?
+                                             (assoc-in [:velocity :x] 0)
+                                             (update-in [:position :x] + x-step))
+                                           (->/if y-stopped?
+                                             (assoc-in [:velocity :y] 0)
+                                             (update-in [:position :y] + y-step))))
                            collisions
                            x-steps
                            y-steps))))))

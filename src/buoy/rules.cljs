@@ -45,14 +45,19 @@
             #{:wall}]
   (r/do (r/stop mover)))
 
-;  (defrule the-keyboard-jumps
-;    :on :frame-entered
-;    (do :when (key-pressed? :jump)
-;        entity <- (entities-with #{:velocity :keyboard-jumper})
-;        :when (collides-with entity (entities-with #{:wall} :below))
-;        :let [speed (-> entity :keyboard-jumper :speed)]
-;        (accelerate entity :y (- speed))))
-;
+(defrule the-keyboard-jumps
+  :on :frame-entered
+  (r/do input <- (r/get-in-app :input)
+        (r/when (i/was-pressed? input :jump)
+          entities <- (r/get-in-scene :entities)
+          jumper << (r/get-entities-with #{:velocity :keyboard-jumper})
+          (r/when (e/collides-with? entities
+                                    jumper
+                                    :below)
+            (r/update-entity jumper
+                             (update-in jumper [:velocity :y]
+                                        - (-> jumper :keyboard-jumper :speed)))))))
+
 ;  (defrule player-collects-coins
 ;    :on :collision
 ;    :between [#{:player}

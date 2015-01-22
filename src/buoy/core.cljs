@@ -21,12 +21,14 @@
 
 (input/bind
   :left 65
-  :right 68)
+  :right 68
+  :jump 87)
 
 (def rules
   [b-rules/the-keyboard-moves-left-and-right
    b-rules/gravity-pulls-things-down
-   b-rules/walls-stop-things])
+   b-rules/walls-stop-things
+   b-rules/the-keyboard-jumps])
 
 (app/launch
   :width 800
