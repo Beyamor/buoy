@@ -58,23 +58,26 @@
                                                                (do-collision
                                                                  (update-in mover [:position :x] + x-step)
                                                                  previous-collisions))
+                        x-steps (if x-stopped? 0 (max (dec x-steps) 0))
                         [y-messages y-collisions y-stopped?] (when (pos? y-steps)
                                                                (do-collision
                                                                  (update-in mover [:position :y] + y-step)
                                                                  previous-collisions))
-                        mover' (-> mover
-                                   (->/in [:position]
-                                          (->/when (not x-stopped?)
-                                            (->/in [:x] (+ x-step)))
-                                          (->/when (not y-stopped?)
-                                            (->/in [:y] (+ y-step)))))]
+                        y-steps (if y-stopped? 0 (max (dec y-steps) 0))
+                        collisions (-> previous-collisions
+                                       (into x-collisions)
+                                       (into y-collisions))]
                     (recur (update-in app [:scene :entities]
-                                      e/update mover (constantly mover'))
-                           (-> previous-collisions
-                               (into x-collisions)
-                               (into y-collisions))
-                           (-> x-steps dec (max 0))
-                           (-> y-steps dec (max 0))))))))
+                                      e/update mover 
+                                      #(-> %
+                                          (->/in [:position]
+                                                 (->/when (not x-stopped?)
+                                                   (->/in [:x] (+ x-step)))
+                                                 (->/when (not y-stopped?)
+                                                   (->/in [:y] (+ y-step))))))
+                           collisions
+                           x-steps
+                           y-steps))))))
           app
           (-> app :scene :entities (e/get-with #{:position :velocity}))))
 
