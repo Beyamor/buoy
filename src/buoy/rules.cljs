@@ -48,7 +48,7 @@
 (defrule the-keyboard-jumps
   :on :frame-entered
   (r/do input <- (r/get-in-app :input)
-        (r/when (i/was-pressed? input :jump)
+        (r/when (i/is-down? input :jump)
           entities <- (r/get-in-scene :entities)
           jumper << (r/get-entities-with #{:velocity :keyboard-jumper})
           (r/when (e/collides-with? entities
