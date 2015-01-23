@@ -4,16 +4,8 @@
             [sinai.rules :as r :include-macros true]
             [sinai.entities :as e]
             [sinai.input :as input]
-            [buoy.entities :as b-entites]
+            [buoy.entities :as b-entities]
             [buoy.rules :as b-rules]))
-
-(defn wall
-  [x y]
-  {:position {:x x
-              :y y}
-   :hitbox {:width 48
-            :height 48}
-   :wall true})
 
 (def handlers
   {:update-entity (fn [app entity f]
@@ -37,6 +29,6 @@
                    :rules rules
                    :handlers handlers
                    :entities (e/add-all {}
-                                        (map e/create (concat [b-entites/player]
+                                        (map e/create (concat [b-entities/player]
                                                               (for [x (range 0 800 48)]
-                                                                (wall x 500)))))))
+                                                                (b-entities/wall x 500)))))))

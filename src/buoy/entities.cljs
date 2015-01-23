@@ -11,3 +11,11 @@
    :keyboard-jumper {:speed 30}
    :gravity true
    :debug-color :blue})
+
+(defn wall
+  [x y]
+  {:position {:x x
+              :y y}
+   :hitbox {:width 48
+            :height 48}
+   :wall true})
