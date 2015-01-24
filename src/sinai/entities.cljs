@@ -109,3 +109,28 @@
       (->> (get-all entities)
            (filter #(not= entity %))
            (some #(collide? entity % location-modifier))))))
+
+(defprotocol SpatialAccess
+  (in-region [this left right top bottom]))
+
+(extend-protocol SpatialAccess
+  object
+  (in-region [this left- right- top- bottom-]
+    (for [id (get-all-ids this)
+          :let [entity (get this id)]
+          :when (not (or (< right- (left entity))
+                         (> left- (right entity))
+                         (< bottom- (top entity))
+                         (> top- (bottom entity))))]
+      id)))
+
+(defn entities-colliding-with
+  [entities entity]
+  (let [entity-id (get-id entity)]
+    (for [other-id (in-region entities
+                              (left entity) (right entity)
+                              (top entity) (bottom entity))
+          :when (not= entity-id other-id)
+          :let [other (get entities other-id)]
+          :when (collide? entity other)]
+      other-id)))

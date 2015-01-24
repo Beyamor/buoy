@@ -29,10 +29,11 @@
                   y-direction (-> mover :velocity :y util/signum)
                   do-collision (fn [mover previous-collisions]
                                  (let [collisions-and-messages (for [collision-rule collision-rules
-                                                                     other-id (e/get-with entities (:components2 collision-rule))
-                                                                     :when (not= mover-id other-id)
+                                                                     other-id (e/entities-colliding-with
+                                                                                entities
+                                                                                mover)
                                                                      :let [other (e/get entities other-id)]
-                                                                     :when (e/collide? mover other)
+                                                                     :when (e/has-components? other (:components2 collision-rule))
                                                                      :let [action ((:action collision-rule)
                                                                                    mover other)]
                                                                      message (r/get-messages
