@@ -1,7 +1,8 @@
 (ns buoy.rules
   (:require [sinai.rules :as r :refer-macros [defrule]]
             [sinai.entities :as e]
-            [sinai.input :as i]))
+            [sinai.input :as i])
+  (:require-macros [lonocloud.synthread :as ->]))
 
 (defrule velocity-is-integrated
   :on :frame-entered
@@ -57,6 +58,19 @@
             (r/update-entity jumper
                              (update-in jumper [:velocity :y]
                                         - (-> jumper :keyboard-jumper :speed)))))))
+
+(defrule the-player-cant-fall-forever
+  :on :frame-entered
+  (r/do player << (r/get-entities-with #{:player :position :velocity})
+        (r/update-entity player
+                         (-> player
+                             (->/when (-> player :position :y (> 1500))
+                               (->/in [:position]
+                                      (assoc :x 50
+                                             :y 50))
+                               (->/in [:velocity]
+                                      (assoc :x 0
+                                             :y 0)))))))
 
 ;  (defrule player-collects-coins
 ;    :on :collision

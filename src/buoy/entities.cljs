@@ -10,7 +10,8 @@
    :keyboard-walker {:speed 5}
    :keyboard-jumper {:speed 30}
    :gravity true
-   :debug-color :blue})
+   :debug-color :blue
+   :player true})
 
 (defn wall
   [x y]

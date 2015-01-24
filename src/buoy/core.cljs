@@ -20,7 +20,8 @@
   [b-rules/the-keyboard-moves-left-and-right
    b-rules/gravity-pulls-things-down
    b-rules/walls-stop-things
-   b-rules/the-keyboard-jumps])
+   b-rules/the-keyboard-jumps
+   b-rules/the-player-cant-fall-forever])
 
 (app/launch
   :width 800
