@@ -8,3 +8,5 @@
     :else 0))
 
 (def abs #(.abs js/Math %))
+(def floor #(.floor js/Math %))
+(def ceil #(.ceil js/Math %))

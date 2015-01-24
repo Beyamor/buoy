@@ -1,7 +1,9 @@
 (ns sinai.entities
-  (:require clojure.set)
+  (:require clojure.set
+            [sinai.util :as util :refer [floor]])
   (:refer-clojure :exclude [get = not=])
-  (:require-macros [sinai.util :as util]))
+  (:require-macros [sinai.util :as util]
+                   [lonocloud.synthread :as ->]))
 
 (let [ids (atom 0)]
   (defn generate-id
@@ -134,3 +136,44 @@
           :let [other (get entities other-id)]
           :when (collide? entity other)]
       other-id)))
+
+(defn create-spatial-index
+  [grid-width]
+  {:grid-width grid-width
+   :ids {}})
+
+(defn add-to-spatial-index
+  [{:keys [grid-width] :as index} entity]
+  (let [grid-left (-> entity left (/ grid-width) floor)
+        grid-right (-> entity right (/ grid-width) floor)
+        grid-top (-> entity top (/ grid-width) floor)
+        grid-bottom (-> entity bottom (/ grid-width) floor)
+        id (get-id entity)]
+    (reduce (fn [index [x y]]
+              (update-in index [:ids x y] (fnil conj #{}) id))
+            index
+            (for [x (range grid-left (inc grid-right))
+                  y (range grid-top (inc grid-bottom))]
+              [x y]))))
+
+(defn remove-from-spatial-index
+  [{:keys [grid-width] :as index} entity]
+  (let [grid-left (-> entity left (/ grid-width) floor)
+        grid-right (-> entity right (/ grid-width) floor)
+        grid-top (-> entity top (/ grid-width) floor)
+        grid-bottom (-> entity bottom (/ grid-width) floor)
+        id (get-id entity)]
+    (reduce (fn [index [x y]]
+              (-> index
+                  (->/in [:ids]
+                         (update-in [x y] disj id)
+                         (->/as ids
+                                (->/when (empty? (get-in ids [x y]))
+                                  (->/in [x] (dissoc y))))
+                         (->/as ids
+                                (->/when (empty? (get ids x))
+                                  (dissoc x))))))
+            index
+            (for [x (range grid-left (inc grid-right))
+                  y (range grid-top (inc grid-bottom))]
+              [x y]))))
