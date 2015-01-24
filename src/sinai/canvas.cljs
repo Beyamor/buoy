@@ -33,3 +33,13 @@
           (.fill context))
       (do (set! (.-strokeStyle context) color)
           (.stroke context)))))
+
+(defn draw-text!
+  [{:keys [context]} x y text color]
+  (let [text (str text)
+        color (->color color)]
+    (doto context
+      .beginPath
+      (-> .-fillStyle (set! color))
+      (.fillText text x y))))
+

@@ -44,9 +44,18 @@
           (fn []
             (watch-for-key-events key-events)
             (.appendChild (.-body js/document) (:el canvas))
-            (async-m/go-loop [app app]
+            (async-m/go-loop [app app previous-time (js/Date.) time-deltas []]
                              (async/<! update-interval)
-                             (let [new-key-events @key-events
+                             (let [current-time (js/Date.)
+                                   delta (- current-time previous-time)
+                                   time-deltas (-> time-deltas
+                                                   (->> (take-last 2))
+                                                   (concat [delta]))
+                                   average-time-delta (-> time-deltas
+                                                           (->> (reduce +))
+                                                           (/ (count time-deltas)))
+                                   fps (int (/ 1000 average-time-delta))
+                                   new-key-events @key-events
                                    app (-> app
                                            (apply-key-events new-key-events)
                                            (->> (scene/update (:scene app))))]
@@ -62,4 +71,8 @@
                                                     (:height hitbox)
                                                     (or debug-color :red)
                                                     false))
-                               (recur app)))))))
+                               (canvas/draw-text! canvas
+                                                  10 10 fps :black)
+                               (recur app
+                                      current-time
+                                      time-deltas)))))))
