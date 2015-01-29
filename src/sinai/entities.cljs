@@ -77,21 +77,21 @@
 
 (defn left
   [e]
-  (get-in e [:position :x] 0))
+  (or (-> e :position :x) 0))
 
 (defn right
   [e]
   (+ (left e)
-     (get-in e [:hitbox :width] 0)))
+     (or (-> e :hitbox :width) 0)))
 
 (defn top
   [e]
-  (get-in e [:position :y] 0))
+  (or  (-> e :position :y) 0))
 
 (defn bottom
   [e]
   (+ (top e)
-     (get-in e [:hitbox :height] 0)))
+     (or (-> e :hitbox :height) 0)))
 
 (defn collide?
   ([e1 e2]
@@ -195,10 +195,10 @@
             (->/in [:ids]
                    (update-in [x y] disj id)
                    (->/as ids
-                          (->/when (empty? (get-in ids [x y]))
+                          (->/when (-> ids (get x) (get y) empty?)
                             (->/in [x] (dissoc y))))
                    (->/as ids
-                          (->/when (empty? (get ids x))
+                          (->/when (-> ids (get x) empty?)
                             (dissoc x))))))
       index
       entity
@@ -208,7 +208,8 @@
   [{:keys [grid-width] :as grid} left right top bottom]
   (reduce-over-spatial-grid-coordinates
     (fn [ids x y]
-      (into ids (get-in grid [:ids x y])))
+      (into ids
+            (some-> grid :ids (get x) (get y))))
     #{}
     left right top bottom
     grid-width))
