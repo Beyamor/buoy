@@ -36,7 +36,7 @@
 (defn launch
   [& {:keys [width height] scene :initial-scene}]
   (let [canvas (canvas/create width height)
-        update-interval (interval 30)
+        update-interval (interval 33)
         key-events (atom [])
         app {:scene scene
              :input input/blank}]

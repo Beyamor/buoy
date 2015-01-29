@@ -137,43 +137,121 @@
           :when (collide? entity other)]
       other-id)))
 
-(defn create-spatial-index
+(defn create-spatial-indexing-grid
   [grid-width]
   {:grid-width grid-width
    :ids {}})
 
-(defn add-to-spatial-index
-  [{:keys [grid-width] :as index} entity]
-  (let [grid-left (-> entity left (/ grid-width) floor)
-        grid-right (-> entity right (/ grid-width) floor)
-        grid-top (-> entity top (/ grid-width) floor)
-        grid-bottom (-> entity bottom (/ grid-width) floor)
-        id (get-id entity)]
-    (reduce (fn [index [x y]]
-              (update-in index [:ids x y] (fnil conj #{}) id))
-            index
-            (for [x (range grid-left (inc grid-right))
-                  y (range grid-top (inc grid-bottom))]
-              [x y]))))
+(defn ->spatial-grid-index
+  [value grid-width]
+  (-> value (/ grid-width) floor))
 
-(defn remove-from-spatial-index
+(defn reduce-over-spatial-grid-coordinates
+  [f result left right top bottom grid-width]
+  (let [grid-left (->spatial-grid-index left grid-width)
+        grid-right (->spatial-grid-index right grid-width)
+        grid-top (->spatial-grid-index top grid-width)
+        grid-bottom (->spatial-grid-index bottom grid-width)]
+    (loop [x grid-left result result]
+      (if (> x grid-right)
+        result
+        (recur (inc x)
+               (loop [y grid-top result result]
+                 (if (> y grid-bottom)
+                   result
+                   (recur (inc y)
+                          (f result x y)))))))))
+
+(defn reduce-over-spatial-grid-coordinates-for-entity
+  [f result entity grid-width]
+  (reduce-over-spatial-grid-coordinates
+    f result
+    (left entity)
+    (right entity)
+    (top entity)
+    (bottom entity)
+    grid-width))
+
+(defn add-to-spatial-indexing-grid
   [{:keys [grid-width] :as index} entity]
-  (let [grid-left (-> entity left (/ grid-width) floor)
-        grid-right (-> entity right (/ grid-width) floor)
-        grid-top (-> entity top (/ grid-width) floor)
-        grid-bottom (-> entity bottom (/ grid-width) floor)
-        id (get-id entity)]
-    (reduce (fn [index [x y]]
-              (-> index
-                  (->/in [:ids]
-                         (update-in [x y] disj id)
-                         (->/as ids
-                                (->/when (empty? (get-in ids [x y]))
-                                  (->/in [x] (dissoc y))))
-                         (->/as ids
-                                (->/when (empty? (get ids x))
-                                  (dissoc x))))))
-            index
-            (for [x (range grid-left (inc grid-right))
-                  y (range grid-top (inc grid-bottom))]
-              [x y]))))
+  (let [id (get-id entity)]
+    (reduce-over-spatial-grid-coordinates-for-entity
+      (fn [index x y]
+        (update-in index [:ids x y] (fnil conj #{}) id))
+      index
+      entity
+      grid-width)))
+
+(defn add-all-to-spatial-indexing-grid
+  [index entities]
+  (reduce add-to-spatial-indexing-grid index entities))
+
+(defn remove-from-spatial-indexing-grid
+  [{:keys [grid-width] :as index} entity]
+  (let [id (get-id entity)]
+    (reduce-over-spatial-grid-coordinates-for-entity
+      (fn [index x y]
+        (-> index
+            (->/in [:ids]
+                   (update-in [x y] disj id)
+                   (->/as ids
+                          (->/when (empty? (get-in ids [x y]))
+                            (->/in [x] (dissoc y))))
+                   (->/as ids
+                          (->/when (empty? (get ids x))
+                            (dissoc x))))))
+      index
+      entity
+      grid-width)))
+
+(defn get-spatial-grid-indices-in-range
+  [{:keys [grid-width] :as grid} left right top bottom]
+  (reduce-over-spatial-grid-coordinates
+    (fn [ids x y]
+      (into ids (get-in grid [:ids x y])))
+    #{}
+    left right top bottom
+    grid-width))
+
+(defn update-spatial-indexing-grid-for-entity
+  [{:keys [grid-width] :as grid} before after]
+  (-> grid
+      (->/when (or (not= (->spatial-grid-index (left before) grid-width)
+                         (->spatial-grid-index (left after) grid-width))
+                   (not= (->spatial-grid-index (right before) grid-width)
+                         (->spatial-grid-index (right after) grid-width))
+                   (not= (->spatial-grid-index (top before) grid-width)
+                         (->spatial-grid-index (top after) grid-width))
+                   (not= (->spatial-grid-index (bottom before) grid-width)
+                         (->spatial-grid-index (bottom after) grid-width)))
+        (remove-from-spatial-indexing-grid before)
+        (add-all-to-spatial-indexing-grid after))))
+
+(defrecord SpatiallyIndexedEntities
+  [entities spatial-indexing-grid]
+
+  Entities
+  (add-all [this entities-to-add]
+    (-> this
+        (update-in [:entities] add-all entities-to-add)
+        (update-in [:spatial-indexing-grid] add-all-to-spatial-indexing-grid entities-to-add)))
+  (get-all-ids [this]
+    (get-all-ids entities))
+  (-get [this id]
+    (-get entities id))
+  (-update [this id f]
+    (let [before (get entities id)
+          entities' (-update entities id f)
+          after (get entities id)]
+      (-> this
+          (assoc :entities entities')
+          (->/in [:spatial-indexing-grid]
+                 (update-spatial-indexing-grid-for-entity before after)))))
+  (get-with [this components]
+    (get-with entities components))
+
+  SpatialAccess
+  (in-region [this left right top bottom]
+    (get-spatial-grid-indices-in-range
+      spatial-indexing-grid
+      left right top bottom)))

@@ -29,11 +29,14 @@
   :initial-scene (s/create-scene
                    :rules rules
                    :handlers handlers
-                   :entities (e/add-all {}
-                                        (map e/create (concat [b-entities/player]
-                                                              (for [x (range 0 800 48)]
-                                                                (b-entities/wall x 500))
-                                                              (for [x (range 150 250 48)]
+                   :entities (e/add-all (e/->SpatiallyIndexedEntities {}
+                                                                      (e/create-spatial-indexing-grid 48))
+                                        (map e/create (concat (for [x (range 0 600 100)]
+                                                                    (-> b-entities/player
+                                                                        (assoc-in [:position :x] x)))
+                                                               (for [x (range 0 800 48)]
+                                                                 (b-entities/wall x 500))
+                                                               (for [x (range 150 250 48)]
                                                                 (b-entities/wall x 400))
                                                               (for [x (range 375 475 48)]
                                                                 (b-entities/wall x (- 500 48))))))))
